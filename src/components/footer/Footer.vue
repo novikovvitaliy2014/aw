@@ -4,7 +4,6 @@
       <router-link to="/">
         <logo></logo>
       </router-link>
-      <p>Yards improvement</p>
     </div>
   </footer>
 </template>

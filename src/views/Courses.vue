@@ -1,108 +1,200 @@
 <template>
-  <section class="donors">
-    <h1>List of donations and participants</h1>
-    <v-select
-      class="project__select"
-      v-model="selected"
-      :items="adresses"
-      label="Select the project"
-      @input="getDonors"
-      required>
-    </v-select>
-    <section class="donors__pro" v-if="selected === 'Baker Street'">
-      <div v-for="user in usersBaker"
-          :key="user.idToken">
-      <div class="donors__row">
-        <div class="donors__cell">{{ user.donation }} &#8364;</div>
-        <div class="donors__cell">{{ user.pseudo }}</div>
-      </div>
-      </div>
-      <div class="donors__row donors__row--got-donations">
-        <div class="donors__cell">{{ gotDonations(usersBaker) }} &#8364;</div>
-        <div class="donors__cell">Raised</div>
-      </div>
-      <div class="donors__row donors__row--need-donations">
-        <div class="donors__cell">{{ needDonations(smetaBaker) }} &#8364;</div>
-        <div class="donors__cell">Project demand</div>
-      </div>
-      <div class="donors__row donors__row--rest-donations">
-        <div class="donors__cell">{{ restDonation(smetaBaker, usersBaker)}} &#8364;</div>
-        <div class="donors__cell">Still needed</div>
+  <section class="courses">
+    <h1>courses</h1>
+    <div class="search">
+      <v-text-field
+        class='lightgrey'
+        label="Case unsensitive search"
+        prepend-icon="search"
+        v-model="filterText"
+        @input="searchResults"
+        light
+        flat
+        solo-inverted
+        hide-details
+        >
+      </v-text-field>
+    </div>
+    <section class="settings">
+      <app-dialog-courses @upgradeCourses="changePagination">
+      </app-dialog-courses>
+      <div class="select-pages">
+        <v-select
+          v-model="perPage"
+          :items="items"
+          label="Select the items quantity"
+          @input="changePagination"
+          >
+        </v-select>
       </div>
     </section>
-    <section class="donors__pro" v-if="selected === 'School №53'">
-      <div v-for="user in usersSchool"
-          :key="user.idToken">
-      <div class="donors__row">
-        <div class="donors__cell">{{ user.donation }} &#8364;</div>
-        <div class="donors__cell">{{ user.pseudo }}</div>
+    <section class="settings">
+      <div class="settings__select">
+        <v-select
+          v-model="selectedSort"
+          :items="itemsSort"
+          label="Sort by alphabet"
+          @change="sortAlphabet"
+          >
+        </v-select>
       </div>
-      </div>
-      <div class="donors__row donors__row--got-donations">
-        <div class="donors__cell">{{ gotDonations(usersSchool) }} &#8364;</div>
-        <div class="donors__cell">Raised</div>
-      </div>
-      <div class="donors__row donors__row--need-donations">
-        <div class="donors__cell">{{ needDonations(smetaSchool) }} &#8364;</div>
-        <div class="donors__cell">Project demand</div>
-      </div>
-      <div class="donors__row donors__row--rest-donations">
-        <div class="donors__cell">{{ restDonation(smetaSchool, usersSchool) }} &#8364;</div>
-        <div class="donors__cell">Still needed</div>
+      <div class="settings__select">
+        <v-select
+          v-model="selectedStatus"
+          :items="itemsCode"
+          label="Sort by Code"
+          @change="sortCode"
+          >
+        </v-select>
       </div>
     </section>
+    <section class="table">
+      <div v-for="(course, index) in coursesPage" :key="course.code">
+        <div class="course__row">
+          <div class="course__cell">{{ course.name }}</div>
+          <div class="course__cell">{{ course.code }}</div>
+          <div class="course__buttons">
+            <app-dialog-edit-courses :course="course">
+            </app-dialog-edit-courses>
+            <v-icon class="delete-icon" @click="deleteCourse(index)" color="green">fas fa-trash-alt</v-icon>
+          </div>
+        </div>
+      </div>
+    </section>
+    <v-pagination
+      class="pagination"
+      v-model="page"
+      :length="totalPages"
+      circle
+      :total-visible="5"
+      @input="changePagination"
+      >
+    </v-pagination>
   </section>
 </template>
 
 <script>
+import DialogCourses from '../components/dialogs/DialogCourses.vue'
+import DialogCoursesEdit from '../components/dialogs/DialogCoursesEdit.vue'
 export default {
+  components: {
+    "app-dialog-courses": DialogCourses,
+    "app-dialog-edit-courses": DialogCoursesEdit
+  },
   data() {
     return {
-      adresses: ["Baker Street","School №53"],
-      selected: '',
-      smetaBaker: [],
-      smetaSchool: []
-    }
-  },
-  methods: {
-    gotDonations(donations) {
-      let sumDonations = null
-      for (let item of donations) {
-        sumDonations = sumDonations + Number(item.donation)
-      }
-      return sumDonations
-    },
-    needDonations(smeta) {
-      let needSum = 0;
-      let sum = 0;
-      for (let item of smeta ) {
-        sum = sum + item.num * item.price
-      }
-      needSum = sum + sum * 0.1
-      return needSum
-    },
-    restDonation(smeta, donations) {
-      let need = this.needDonations(smeta)
-      let sum = this.gotDonations(donations)
-      let rest = need - sum
-      return rest
-    },
-    getDonors() {
-      this.$store.dispatch('fetchUsers')
+      courses: [],
+      coursesPage: [],
+      perPage: 5,
+      items: [5, 7, 20],
+      itemsSort: ['A-Z', 'Z-A'],
+      itemsCode: ['increase', 'decrease'],
+      page: 1,
+      firstItemOnPage: 0,
+      lastItemOnPage: 4,
+      totalPages: 1,
+      coursesStorage: [],
+      stateUsers: [],
+      filterText: '',
+      selectedStatus: '',
+      selectedSort: ''
     }
   },
   computed: {
-    usersBaker() {
-      return this.$store.getters.usersBaker
+    changeAlphabet() {
+      if (this.selectedSort === 'A-Z') {
+        return this.coursesStorage.sort(function (d1, d2) {
+          return (d1.name.toLowerCase() > d2.name.toLowerCase()) ? 1 : -1
+        })
+      } else if (this.selectedSort === 'Z-A') {
+        return this.coursesStorage.sort(function (d1, d2) {
+          return (d1.name.toLowerCase() < d2.name.toLowerCase()) ? 1 : -1
+        })
+      } else {
+        return
+      }
     },
-    usersSchool() {
-      return this.$store.getters.usersSchool
+    changeCode(){
+      if (this.selectedStatus === 'increase') {
+        return this.coursesStorage.sort(function (d1, d2) {
+          return (d1.code > d2.code) ? 1 : -1
+        })
+      } else if (this.selectedStatus === 'decrease') {
+        return this.coursesStorage.sort(function (d1, d2) {
+          return (d1.code< d2.code) ? 1 : -1
+        })
+      } else {
+        return
+      }
     },
+    getCourses() {
+      return this.$store.getters.getCourses
+    },
+    searchUsers() {
+      var text = this.filterText
+      return this.coursesStorage.filter(function (elem) {
+          if(text==='') return true
+          else return elem.name.toLowerCase().indexOf(text.toLowerCase()) > -1
+      })
+      this.changePagination()
+    }
+  },
+  methods: {
+    sortAlphabet() {
+      this.coursesPage = this.changeAlphabet
+      this.changePagination()
+    },
+    sortCode() {
+      this.coursesPage = this.changeCode
+      this.changePagination()
+    },
+    searchResults(){
+      this.coursesPage = this.searchUsers
+    },
+    // Universal pagination for any quantity of items and any number of pages
+    countPages() {
+      this.totalPages = Math.ceil(this.coursesStorage.length / this.perPage)
+      this.page > this.totalPages ? this.page = this.totalPages : this.page
+    },
+    pageItems() {
+      if(this.page === 1) {
+        this.firstItemOnPage = 0
+      } else {
+        this.firstItemOnPage = (this.page - 1) * this.perPage
+      };
+      if(this.page == this.totalPages) {
+        this.lastItemOnPage = this.coursesStorage.length - 1
+      } else {
+        this.lastItemOnPage = this.firstItemOnPage + this.perPage - 1
+      }
+    },
+    listPerPage() {
+      this.coursesPage = []
+      for (let i=this.firstItemOnPage; i <= this.lastItemOnPage; i++) {
+        this.coursesPage.push(this.coursesStorage[i])
+      }
+    },
+    async changePagination() {
+      try {
+        await this.countPages()
+        await this.pageItems()
+        await this.listPerPage()
+      } catch(e) {
+        console.log(e)
+      }
+    },
+    deleteCourse(index) {
+      this.coursesStorage.splice(index, 1)
+      localStorage.setItem('storage_courses', JSON.stringify(this.coursesStorage))
+      this.changePagination()
+    }
   },
   created () {
-    this.$store.dispatch('initSmeta')
-    this.smetaBaker = this.$store.getters.smetaBaker
-    this.smetaSchool = this.$store.getters.smetaSchool
+    this.$store.dispatch('initDataCourses')
+    this.coursesStorage = this.getCourses
+  },
+  mounted () {
+    this.changePagination()
   }
 };
 </script>

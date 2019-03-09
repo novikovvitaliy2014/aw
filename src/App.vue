@@ -9,39 +9,12 @@
 <script>
 import Header from './components/header/Header.vue'
 import Footer from './components/footer/Footer.vue'
-import PageMain from './views/mainPage/PageMain.vue'
-import Donors from './views/donorsPage/Donors.vue'
-import Signin from './views/auth/signin.vue'
-import Signup from './views/auth/signup.vue'
 
-import WebFontLoader from 'webfontloader'
 export default {
   components: {
     'app-header': Header,
-    'app-footer': Footer,
-    PageMain,
-    Donors,
-    Signin,
-    Signup
+    'app-footer': Footer
   },
-  computed: {
-    auth() {
-      return this.$store.getters.isAuthenticated !== null && this.$store.getters.isAuthenticated !== undefined
-    }
-  },
-  created() {
-    this.$store.dispatch('tryAutoLogin')
-    this.$vuetify.theme.green = "#4CAF50"
-    this.$vuetify.theme.primary = "#4CAF50"
-    this.$vuetify.theme.greendarken4 = "#1B5E20"
-  },
-  mounted () {
-    WebFontLoader.load({
-      google: {
-        families: ['Roboto:100,300,400,500,700,900']
-      }
-    })
-  }
 };
 </script>
 
@@ -49,13 +22,8 @@ export default {
   @import "./sass/_mixins.sass"
   @import "./sass/_variables.sass"
   @import "./sass/_base.sass"
-  @import "./sass/_auth.sass"
-  @import "./sass/_about.sass"
-  @import "./sass/_contacts.sass"
-  @import "./sass/_donors.sass"
-  @import "./sass/_features.sass"
+  @import "./sass/_data.sass"
   @import "./sass/_footer.sass"
   @import "./sass/_header.sass"
-  @import "./sass/_project.sass"
   @import "./sass/_logo.sass"
 </style>

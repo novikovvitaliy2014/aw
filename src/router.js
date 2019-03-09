@@ -1,26 +1,12 @@
 import Vue from 'vue'
-import Donors from './views/donorsPage/Donors.vue'
-import signup from './views/auth/signup.vue'
-import signin from './views/auth/signin.vue'
-import PageMain from './views/mainPage/PageMain.vue'
-import store from "./store/store.js"
+import Courses from './views/Courses.vue'
+import Users from './views/Users.vue'
 import VueRouter from 'vue-router'
 Vue.use(VueRouter)
 
 const routes = [
-  { path: '/', component: PageMain},
-  { path: '/signup', component: signup},
-  { path: '/donors',
-      component: Donors,
-      beforeEnter: (to, from, next) => {
-        if(store.getters.isAuthenticated) {
-          next()
-        } else {
-          next('/signin')
-        }
-      }
-  },
-  { path: '/signin', component: signin}
+  { path: '/', component: Courses},
+  { path: '/users', component: Users},
 ]
 
 const router = new VueRouter({

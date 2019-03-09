@@ -6,67 +6,28 @@
       </router-link>
       <nav>
         <ul>
-          <li @click="showContacts"
-              >
-          Contacts
-          </li>
-          <router-link to="/signin"
-                       tag="li"
-                       v-if="!auth"
-                       >
-          Sign in
+          <router-link to="/users"
+             tag="li"
+             >
+          Users
           </router-link>
-          <router-link to="/signup"
-                       tag="li"
-                       v-if="!auth"
-                       >
-          Sign up
+          <router-link to="/"
+             tag="li"
+             >
+          Courses
           </router-link>
-          <router-link to="/donors"
-                       tag="li"
-                       v-if="auth"
-                       >
-          Participants
-          </router-link>
-          <li v-if="auth"
-              @click="onLogout"
-              >
-          Log out
-          </li>
         </ul>
       </nav>
     </div>
-    <contacts :class="{contacts__show: isActive}"></contacts>
   </header>
 </template>
 
 <script>
 import Logo from './Logo.vue'
-import Contacts from './Contacts.vue'
-
 
 export default {
   components: {
-    Logo,
-    Contacts
-  },
-  data () {
-    return {
-      isActive: false
-    }
-  },
-  computed: {
-    auth() {
-      return this.$store.getters.isAuthenticated !== null && this.$store.getters.isAuthenticated !== undefined
-    }
-  },
-  methods: {
-    showContacts() {
-      this.isActive = !this.isActive;
-    },
-    onLogout() {
-      this.$store.dispatch('logout')
-    }
+    Logo
   }
 };
 </script>
