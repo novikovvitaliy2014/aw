@@ -9,7 +9,7 @@ export default
       code: 1577755,
     },
     {
-      name: "Jawa Base",
+      name: "Java Base",
       code: 20888,
     },
     {
@@ -17,7 +17,7 @@ export default
       code: 200669,
     },
     {
-      name: "Jawa Base",
+      name: "Java Base",
       code: 22115,
     },
     {
@@ -33,11 +33,11 @@ export default
       code: 20088,
     },
     {
-      name: "Jawa Base",
+      name: "Java Base",
       code: 20066,
     },
     {
-      name: "JawaScript Base",
+      name: "JavaScript Base",
       code: 2211,
     },
     {
@@ -49,15 +49,15 @@ export default
       code: 1577,
     },
     {
-      name: "Jawa Base",
+      name: "Java Base",
       code: 200888,
     },
     {
-      name: "Jawa Base",
+      name: "Java Base",
       code: 200664,
     },
     {
-      name: "Jawa Base",
+      name: "Java Base",
       code: 221311,
     }
   ];
