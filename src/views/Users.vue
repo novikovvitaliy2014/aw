@@ -135,7 +135,7 @@ export default {
       return this.$store.getters.getUsers
     },
     searchUsers() {
-      var text = this.filterText
+      let text = this.filterText
       return this.usersStorage.filter(function (elem) {
           if(text==='') return true
           else return elem.name.toLowerCase().indexOf(text.toLowerCase()) > -1
